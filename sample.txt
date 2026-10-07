@@ -1,0 +1,453 @@
+// EXP 1b review of linux commands
+//commands 
+ls // lists files and directories in the current directory
+cd /home // changes the current directory to the specified directory
+
+pwd // prints the current working directory
+
+mkdir file  // creates a new directory with the specified name
+
+rmdir file // removes an empty directory
+
+rm -r one // removes files or directories (use with caution)
+
+cp one.txt two.txt// copies files or directories from one location to another
+
+mv one.txt two.txt// moves or renames files or directories
+
+cat one.txt// displays the contents of a file
+
+touch one.txt // creates a new empty file or updates the timestamp of an existing file
+
+chmod // changes the permissions of a file or directory
+
+chown // changes the owner of a file or directory
+
+grep "hi" two.txt // searches for a specific pattern in files
+
+find // searches for files and directories based on specified criteria
+
+nano one.txt // opens the nano text editor to edit a file
+
+ps // displays information about running processes
+
+ps -aux 
+
+top // displays system tasks and resouces usage in real-time
+
+kill // terminates a process using its PID
+
+df // show disk usage and free space of file system
+
+du //show disk usage of files and directories
+
+
+// EXP 2A Create a VM and adding storage, memory network to vm 
+//Open Oracle VM VirtualBox Manager and Click the "New" button
+//Fill the name: (your name) Type: Linux Version: Ubuntu (64-bit) or your chosen OS and Click Next
+//Allocate Memory (RAM) .Set the memory size  4gb has been set below Don’t exceed 50% of your physical system RAM Click Next
+//Click use an existing virtual hard disk. Click Next Dynamically allocated → Click Next Set disk size (e.g., 20 GB)Click Create
+//Configure Network Adapter Go to Settings → Network Ensure Adapter 1 is: Enabled Attached to:Bridged Adapter (for internet + LAN access), or Host-Only Adapter (for communication with host only) Click OK Then new vm has been created 
+//Execution of java program to test the execution time between vm (Ubunttu) and host(Windows)
+//1)To find the sum of digits between 1 to max of long datatype 
+//Steps to Execute in Ubuntu (Virtual Machine)
+//Open the Terminal.
+//Create a Java source file using the command:
+//gedit filename. java
+//Type the Java program in the Gedit editor.
+//Save and close the editor.
+//Compile the program using: javac filename.java
+//Execute the program using:java filename
+
+nano filename.java
+
+//type the following code in the nano editor and save it
+public class filename{
+    public static void main(String args[]){
+        long st=System.nanoTime();
+        long sum=0;
+        for(long i=0;i<1000000000L;i++){
+            sum+=i;
+        }
+        long et=System.nanoTime();
+        double ds=(et-st)/1000000000.0;
+        System.out.println("sum is "+sum);
+        System.out.println("Execution Time "+ds+" seconds");
+    }
+}
+
+javac filename.java
+java filename
+
+//Same above Steps to Execute in Windows (Host Machine)
+
+// EXP 2b VM-VM ping, VM-native ping
+//windows host 
+ipfconfig // to find the IP address of the host machine
+//ubuntu vm
+ifconfig // to find the IP address of the VM machine
+//kali linux vm
+ifconfig // to find the IP address of the Kali Linux VM machine
+
+//windows host to ubuntu vm ping
+ping <ubuntu_vm_ip_address>
+//windows host to kali linux vm ping
+ping <kali_linux_vm_ip_address>
+//ubuntu vm to windows host ping
+ping <windows_host_ip_address>
+//ubuntu vm to kali linux vm ping  
+//kali linux vm to ubuntu vm ping
+ping <ubuntu_vm_ip_address>
+//kali linux vm to windows host ping
+ping <windows_host_ip_address>
+
+// EXP 3 cold migration of vm one host to another
+
+// Step 1 Created a java file to check whether the same file exist in vm after imported(coldmigrated) in another system
+
+gedit one.java
+public class one {
+    public static void main(String args[]) {
+        System.out.println("Migration works.");
+    }
+}
+
+javac one.java
+java one
+
+// Step 2 Shut down the VM completely. Open VirtualBox and select the VM → Click File > Export Appliance (or File > Export OVF).
+// Step 3 Select the vm which you want to export
+// Step 4 Select the format which you want to export ova or ovf file format and select the path where you want to export in the file system
+// Step 5 Click Finish to (export appliance to the file system where you selected the location)
+// Step 6 Check the folder whether the ova image has been present in the folder
+// Step 7  Import the image by import appliance in the file ->import appliance
+// Step 8  Import the ova file from the source
+// Step 9 Now the image has been importing
+// Step 10 Check whether the vm is shown in the oracle virtual box and open it
+// Step 11 Open the java file which you saved first using the linux commands gedit
+gedit one.java
+// Step 12 And its verified that the file are located and cold migration has done
+javac one.java
+java one    
+
+// EXP 4b Live Migration of Virtual Machines using XenCenter
+
+// Step 1 Add the new server by clicking the server in the xencenter and server->Add
+// Step 2 Add the xenserver 1 by entering the Server , Username and password and click add.
+// Server: 10.10.32.140
+// Username: root
+// Step 3 Next add the vm of yours by clicking the xenserver 1 (right click) and add click new vm
+// Step 4 Click the template example citric or ubunttu os or cent os (os which you have).
+// Step 5 Give the name for your Vm and click next.
+// Step 6 Select the iso file inside and click the next
+// Step 7 Finally click the create now option then your vm has been created successfully.
+// Step 8 Create a xenserver 2 same procedure followed in first xenserver1 and click the xenserver 1.
+// Step 9 Right click the vm and select the move vm option from the following
+// Step 10 Select the xenserver 2 from the following list
+// Step 11 Now see the Vm in the second server tce and the live migration has been executed successfully.
+
+// EXP 5a Installation of KVM and creation of Virtual instances
+
+// Step 1 Check Hardware Virtualization Support.
+egrep -c 'lm' /proc/cpuinfo or egrep -c '(vmx|svm)' /proc/cpuinfo
+
+// Step 2 Run uname -a , which shows kernel name, hostname, kernel version, build date, architecture, and OS type in one line.
+uname -a
+
+// Step 3 List KVM kernel module files
+ls /lib/modules/5.4.0-84-generic/kernel/arch/x86/kvm/kvm*
+
+// Step 4 Install KVM packages
+sudo apt-get install qemu-kvm libvirt-bin bridge-utils qemu-system virt-manager
+
+// Step 5 Configure libvirt
+sudo nano /etc/libvirt/libvirtd.conf
+grep ^[^#] /etc/libvirt/libvirtd.conf
+
+// Step 6 Restart libvirtd
+sudo systemctl restart libvirtd
+
+// Step 7 List virtual machines
+virsh list
+
+// Step 8 Enter virtualization interactive terminal
+virsh
+
+// Step 9 Get libvirt & QEMU version
+//Now you are inside virsh, so type:
+version
+
+// Step 10 Get node information Still inside virsh, type:
+nodeinfo
+
+// Step 11 Exit virsh
+exit or type: control + d
+
+// Step 12 Then Import Existing VM, Open Virt-Manager
+virt-manager
+
+// Step 13 Select import existing disk image and click forward
+// Step 14 Download cirros disk image from the link: (in firfox browser)
+https://download.cirroscloud.net/0.5.1/
+
+// Step 15 Give the path of downloaded cirros disk image and click forward
+// Step 16 Choose memory and CPU settings and click forward
+// Step 17 Name your VM and click Finish
+// Step 18 The VM is booted successfully and the login was also successful
+
+// EXP 6 Transfer of files from one Virtual Machine to another
+
+// Step 1 Configure VirtualBox Network: Set both VMs’ network adapter to "Host-only Adapter” in adapter 1 and NAT in adapter 2(for installing packages) so they are on the same subnet.
+// Go to settings -> network -> adapter 1 -> Host only adapter and Adapter2 -> NAT
+// Step 2 Check IP Addresses
+//On both ubuntu as well as kali ip a (check ip) Ensure both are in same subnet (eg 192.168.56.103/24 ubunttu and 192.168.56.104 kali) both in same subnet 192.168.56.0/24
+ip a // check ip address of both vm ubuntu and kali linux
+
+// Step 3 Set	up	NFS	Server	on	Ubuntu	VM(Here	ubuntu	act	as	server), 
+sudo apt update
+
+// Step 4  Install	NFS	server
+sudo apt install nfs-kernel-server -y
+
+// Step 5 Create a directory to share
+sudo mkdir -p /srv/nfs/rakshna 
+
+// Step 6 Set	permissions
+sudo chown nobody:nogroup /srv/nfs/rakshna
+chmod 777 /srv/nfs/rakshna
+
+// Step 7 Edit	exports	/ile	to	allow	Kali	IP	access
+sudo nano /etc/exports
+
+// Step 8 Copy-paste exactly this line into the nano file: (in the place of <kali ip> write the kali linux vm ip address)
+/srv/nfs/sharedfolder <kali ip>(rw,sync,no_subtree_check,no_root_squash)
+
+// Step 9 Export and restart NFS server:
+sudo exportfs -a
+sudo systemctl restart nfs-kernel-server
+
+// Step 10 Allow/disable the firewall for the kali linux (in the place of <kali ip> write the kali linux vm ip address)
+sudo ufw allow from <kali ip> to any port nfs
+
+// Step 11 Set up NFS Client on Kali VM (open kali linux terminal) (Here kali act as client)
+sudo apt update
+sudo apt install nfs-common -y
+
+// Step 12 Create mount point:
+sudo mkdir -p /mnt/nfs/rakshna
+
+// Step 13 Mount the NFS share:
+sudo mount <ubuntu ip>:/srv/nfs/rakshna /mnt/nfs/rakshna
+// Step 14 Verify the mount:
+df -h | grep nfs
+ls -l /mnt/nfs/rakshna 
+
+// Step 15 Transfer files from Ubuntu to Kali
+//On Ubuntu VM, create a test file in the shared directory:
+echo "Hello from Ubuntu!" | sudo tee /srv/nfs/rakshna/ubuntu_test.txt
+
+// Step 16 On Kali VM, check if the file is accessible:
+cat /mnt/nfs/rakshna/ubuntu_test.txt
+
+// Step 17 Transfer files from Kali to Ubuntu
+//On Kali VM, create a test file in the shared directory:
+echo "Hello from Kali!" | sudo tee /mnt/nfs/rakshna/kali_test.txt
+
+// Step 18 On Ubuntu VM, check if the file is accessible:
+cat /srv/nfs/rakshna/kali_test.txt
+
+// EXP 7a Configuration of HyperV on Windows of VMs
+
+// Step 1 1)Open the windows server and open the server manager Click add roles and features . Read before you begin and click next.
+// Step 2 Select role based installation type and click next.
+// Step 3 Select the server and click next
+// Step 4 In server roles check on hyper v and click the add features 
+// Step 5 Enable virtual switches both ethernet and virtual box host only adapter
+// Step 6 For migration use credential security support provider
+// Step 7 Click install and hyperv has been installed and enabled on the windows server
+// Step 8 Open hyperv manager in tools
+
+
+// EXP 7b Creation of VM, Powershell commands, Management
+
+// Step 1 open Tools-> hyper v manager-> right click on server and click create new vm
+// Step 2 Specify name and location click next.
+// Step 3 Assign the memory for the vm(for safety give as 2gb )
+// Step 4 Conigure the network click on inter(R) Ethernet connection virtual switch
+// Step 5 Connect virtual harddisk (name,location,maximum gb) click next
+// Step 6 Import the iso file which os need to install on the vm(here ubunttu)
+// Step 7 Click finish
+// Vm installation using Powershell Procedure : 
+// Step 8 Create vm with name and space in gb with virtual hard disk creation
+New-VM -Name "tcevm" -MemoryStartupBytes 2GB -NewVHDPath "D:\tcevm.vhdx" -NewVHDSizeBytes 60GB -Path "D:\"
+
+// Step 9 Asssign virtual switch to the vm
+Connect-VMNetworkAdapter -VMName "tcevm" -SwitchName "Intel(R) Ethernet Connection (2) I219-LM Virtual Switch"
+
+// Step 10 import the iso file which os need to install on vm
+Set-VMDvdDrive -VMName "tcevm" -Path "C:\ubuntu-18.04-desktop-amd64.iso"
+
+// Step 11 Start the vm
+
+//Powershell commands
+// Step 12 Get vm and start vm
+Get-VM
+Start-VM -Name "your_vm_name"
+
+// Step 13 Stop the vm
+Stop-VM -Name "your_vm_name"
+
+// EXP 8 Network Virtualization – OpenVSwitch and Linux bridge
+//Linux Bridge:
+//Step 1 Check the current network configuration.
+ifconfig
+
+//Step 2 Install and configure necessary Bridge Utilities
+sudo apt install bridge-utils
+sudo modprobe bridge
+sudo modprobe br_netfilter
+
+//Step 3 Edit the netplan configuration file and specify the configuration.
+sudo nano /etc/netplan/01-netcfg.yaml
+//Add the following configuration:
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eno2:
+      dhcp4: no
+  bridges:
+    br-cloud:
+      interfaces: [eno2]
+      addresses: [10.0.2.15/24]
+      gateway4: 10.0.2.255
+      nameservers:
+        addresses: [8.8.8.8, 1.1.1.1]
+
+// Step 4 Apply the new netplan configuration and restart the network.
+sudo systemctl restart networking
+
+//Step 5 Verify network interfaces and bridge
+ip a
+
+// Step 6 Verify routing table
+route -n
+brctl show
+
+// Open Virtual Switch:
+// Step 8 Enter root user
+sudo -s
+
+// Step 9 Create two namespaces
+ip netns add VRF1
+ip netns add VRF2
+// Check them:
+ip netns list
+
+// Step 10 Create virtual Ethernet pairs
+ip link add veth1 type veth peer name veth2 // 1st pair
+ip link add veth3 type veth peer name veth4 // 2nd pair
+
+// Step 11 Check the virtual Ethernet links
+ip link
+
+// Step 12 Assign veth ports to namespaces
+ip link set veth1 netns VRF1
+ip link set veth3 netns VRF2
+ip netns exec VRF1 ip link // check veth1 in VRF1
+ip netns exec VRF2 ip link // check veth3 in VRF2 
+
+// Step 13 Assign IP addresses
+ip netns exec VRF1 ifconfig veth1 10.10.10.1/24 up
+ip netns exec VRF2 ifconfig veth3 10.10.10.2/24 up
+ip netns exec VRF2 ifconfig // check the congifuration 
+ip netns exec VRF1 ifconfig // check the congifuration
+
+// Step 14 Check routing tables
+ip netns exec VRF2 route -n
+route -n //Check the host routing table
+ip netns exec VRF1 route -n
+
+// Step 15 Install Open vSwitch
+ovs-vsctl --version
+sudo systemctl status openvswitch-switch // check the service
+
+// Step 16 Create the OVS bridge
+ovs-vsctl add-br vSwitch1
+ovs-vsctl show // check configuration
+ovs-vsctl add-port vSwitch1 veth2
+ovs-vsctl add-port vSwitch1 veth4
+ovs-vsctl show
+
+// Step 17 Bring virtual Ethernet ports UP
+ifconfig veth2 up
+ifconfig veth4 up
+ifconfig vSwitch1 10.10.10.3/24 up
+
+// Step 18 Test connectivity
+ip netns exec VRF1 ping 10.10.10.2
+
+// Step 19 Enable Spanning Tree Protocol
+ovs-vsctl set bridge vSwitch1 stp_enable=true
+ovsdb-client dump
+
+// Step 20 Check MAC addresses
+ovs-appctl fdb/show vSwitch1
+ip netns exec VRF2 ifconfig
+ip netns exec VRF1 ifconfig
+
+// completed command for exp 8 open v switch 
+
+sudo -s
+
+ip netns add VRF1
+ip netns add VRF2
+ip netns list
+
+ip link add veth1 type veth peer name veth2
+ip link add veth3 type veth peer name veth4
+
+ip link set veth1 netns VRF1
+ip link set veth3 netns VRF2
+
+ip netns exec VRF1 ip link
+
+ip netns exec VRF1 ifconfig veth1 10.10.10.1/24 up
+ip netns exec VRF2 ifconfig veth3 10.10.10.2/24 up
+
+ip netns exec VRF2 ifconfig
+ip netns exec VRF1 ifconfig
+
+ip netns exec VRF2 route -n
+route -n
+ip netns exec VRF1 route -n
+
+sudo apt install openvswitch-switch openvswitch-common -y
+
+ovs-vsctl --version
+sudo systemctl status openvswitch-switch
+
+ovs-vsctl add-br vSwitch1
+ovs-vsctl show
+
+ovs-vsctl add-port vSwitch1 veth2
+ovs-vsctl add-port vSwitch1 veth4
+
+ovs-vsctl show
+
+ifconfig veth2 up
+ifconfig veth4 up
+ifconfig vSwitch1 10.10.10.3/24 up
+
+ip netns exec VRF1 ping 10.10.10.2
+
+ovs-vsctl set bridge vSwitch1 stp_enable=true
+ovsdb-client dump
+
+ovs-appctl fdb/show vSwitch1
+
+ip netns exec VRF2 ifconfig
+ip netns exec VRF1 ifconfig
+
+
+
