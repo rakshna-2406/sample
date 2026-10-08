@@ -369,6 +369,7 @@ route -n //Check the host routing table
 ip netns exec VRF1 route -n
 
 // Step 15 Install Open vSwitch
+sudo apt install openvswitch-switch openvswitch-common -y
 ovs-vsctl --version
 sudo systemctl status openvswitch-switch // check the service
 
