@@ -23,7 +23,8 @@ git clone https://git.openstack.org/openstack/devstack
 git clone https://opendev.org/openstack/devstack
 //Step 8 Move to the DevStack directory
 cd devstack
-//Step 9 nano local.conf
+//Step 9 
+nano local.conf
 
 [[local|localrc]]
 ADMIN_PASSWORD=YourPassword123
