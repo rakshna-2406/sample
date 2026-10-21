@@ -196,14 +196,14 @@ https://download.cirroscloud.net/0.5.1/
 // Step 18 The VM is booted successfully and the login was also successful
 
 // EXP 6 Transfer of files from one Virtual Machine to another
-
+//Method 1 NFS
 // Step 1 Configure VirtualBox Network: Set both VMs’ network adapter to "Host-only Adapter” in adapter 1 and NAT in adapter 2(for installing packages) so they are on the same subnet.
 // Go to settings -> network -> adapter 1 -> Host only adapter and Adapter2 -> NAT
 // Step 2 Check IP Addresses
 //On both ubuntu as well as kali ip a (check ip) Ensure both are in same subnet (eg 192.168.56.103/24 ubunttu and 192.168.56.104 kali) both in same subnet 192.168.56.0/24
 ip a // check ip address of both vm ubuntu and kali linux
 
-// Step 3 Set	up	NFS	Server	on	Ubuntu	VM(Here	ubuntu	act	as	server), 
+// Step 3 Set up NFS	Server	on	Ubuntu	VM(Here	ubuntu	act	as	server), 
 sudo apt update
 
 // Step 4  Install	NFS	server
@@ -216,7 +216,7 @@ sudo mkdir -p /srv/nfs/rakshna
 sudo chown nobody:nogroup /srv/nfs/rakshna
 chmod 777 /srv/nfs/rakshna
 
-// Step 7 Edit	exports	/ile	to	allow	Kali	IP	access
+// Step 7 Edit	exports	file	to	allow	Kali	IP	access
 sudo nano /etc/exports
 
 // Step 8 Copy-paste exactly this line into the nano file: (in the place of <kali ip> write the kali linux vm ip address)
@@ -255,6 +255,196 @@ echo "Hello from Kali!" | sudo tee /mnt/nfs/rakshna/kali_test.txt
 
 // Step 18 On Ubuntu VM, check if the file is accessible:
 cat /srv/nfs/rakshna/kali_test.txt
+
+
+// METHOD 2: SHARED FOLDER
+
+// Step 1 Create a Shared Folder on Your Host
+// Create a folder in your host machine, for example C:\VMShared
+// Create a test file named 22IT043.txt inside the folder
+
+// Step 2 Enable Shared Folder in VirtualBox for Both VMs
+// Shut down VM1
+// Open VirtualBox Manager -> Select VM1 -> Settings -> Shared Folders
+// Click + (Add new shared folder)
+// Folder Path: C:\VMShared
+// Folder Name: VMShared
+// Tick Auto-mount
+// Click OK and again click OK to save
+// Repeat the same procedure for VM2
+
+// Step 3 Insert Guest Additions CD Image
+// Start VM1
+// In the VirtualBox VM window, go to Devices -> Insert Guest Additions CD Image
+// Repeat the same procedure for VM2
+
+// Step 4 Check the Shared Folder in Both VMs
+// On VM1, open Terminal and execute:
+ls /media
+
+// On VM2, open Terminal and execute:
+ls /media
+
+// Step 5 Access the Shared Folder
+// On both VMs, execute:
+ls /media/sf_VMShared
+
+// The file 22IT043.txt should be visible in both VMs
+
+// Step 6 Fix Permissions if Permission Denied
+// On both VMs, execute:
+sudo usermod -aG vboxsf $USER
+
+// Reboot both VMs:
+sudo reboot
+
+// Step 7 Transfer Files from VM1 to the Shared Folder
+// On VM1, ensure VM1.txt exists in the current directory
+// Execute:
+cp VM1.txt /media/sf_VMShared/
+
+// Step 8 Verify the File in VM2
+// On VM2, execute:
+ls /media/sf_VMShared
+
+// VM1.txt should appear in the shared folder
+
+
+// METHOD 3: SSH (Secure Shell)
+
+// Step 1 Install SSH on Both VMs
+// On VM1:
+sudo apt update
+sudo apt install openssh-server -y
+
+// On VM2:
+sudo apt update
+sudo apt install openssh-server -y
+
+// Step 2 Check SSH Status
+// On both VMs:
+sudo systemctl status ssh
+
+// Step 3 Get Server IP Address
+// On VM1 (Server, username = tce):
+ip a
+
+// Example VM1 IP address: 192.168.56.103
+
+// Step 4 Allow SSH Through Firewall
+// On VM1:
+sudo ufw allow 22/tcp
+sudo ufw reload
+
+// Step 5 Connect from VM2 to VM1
+// On VM2 (Client, username = ubuntu):
+ssh tce@192.168.56.103
+
+// Enter VM1's tce password when prompted
+
+// Step 6 Transfer File from VM2 to VM1
+// Ensure file.txt exists in VM2's current directory
+// On VM2:
+scp file.txt tce@192.168.56.103:/home/tce/
+
+// Step 7 Transfer File from VM1 to VM2
+// Ensure serverfile.txt exists in /home/tce/ on VM1
+// On VM2:
+scp tce@192.168.56.103:/home/tce/serverfile.txt /home/ubuntu/
+
+// Step 8 Verify File Transfer
+// On VM1, check the file copied from VM2:
+ls /home/tce/
+
+// On VM2, check the file copied from VM1:
+ls /home/ubuntu/
+
+
+// METHOD 4: FTP (File Transfer Protocol)
+
+// Step 1 Install FTP Server on VM1
+// On VM1 (Server):
+sudo apt update
+sudo apt install vsftpd -y
+
+// Step 2 Enable and Start FTP Service
+// On VM1:
+sudo systemctl enable vsftpd
+sudo systemctl start vsftpd
+
+// Step 3 Configure vsftpd
+// On VM1:
+sudo nano /etc/vsftpd.conf
+
+// Ensure these lines are present and uncommented:
+// local_enable=YES
+// write_enable=YES
+// chroot_local_user=YES
+// allow_writeable_chroot=YES
+
+// Save using Ctrl+O, press Enter, and exit using Ctrl+X
+
+// Step 4 Restart FTP Server
+// On VM1:
+sudo systemctl restart vsftpd
+
+// Step 5 Check VM1 IP Address
+// On VM1:
+ip a
+
+// Example VM1 IP address: 192.168.56.103
+
+// Step 6 Allow FTP Through Firewall
+// On VM1:
+sudo ufw allow 21/tcp
+sudo ufw allow 20/tcp
+sudo ufw status
+
+// Step 7 Install FTP Client on VM2
+// On VM2 (Client):
+sudo apt install ftp -y
+
+// Step 8 Connect from VM2 to VM1
+// On VM2:
+ftp 192.168.56.103
+
+// Enter VM1's username (tce) and password when prompted
+
+// Step 9 List Files on VM1
+// At the FTP prompt:
+ls
+
+// Step 10 Change Directory on VM1
+// At the FTP prompt:
+cd folder
+
+// Step 11 Download File from VM1 to VM2
+// Ensure ftp_vm1.txt exists in the server's current directory
+// At the FTP prompt:
+get ftp_vm1.txt
+
+// Step 12 Upload File from VM2 to VM1
+// Ensure ftp_vm2.txt exists in VM2's current local directory
+// At the FTP prompt:
+put ftp_vm2.txt
+
+// Step 13 Exit FTP Session
+// At the FTP prompt:
+bye
+
+// Step 14 Verify Downloaded File on VM2
+// On VM2:
+ls
+
+// ftp_vm1.txt should be present in VM2's current directory
+
+// Step 15 Verify Uploaded File on VM1
+// On VM1:
+ls /home/FTP1/
+
+// ftp_vm2.txt should be present in /home/FTP1/
+// Ensure the FTP server's directory configuration allows this destination
+
 
 // EXP 7a Configuration of HyperV on Windows of VMs
 
@@ -450,5 +640,128 @@ ovs-appctl fdb/show vSwitch1
 ip netns exec VRF2 ifconfig
 ip netns exec VRF1 ifconfig
 
+//Exp 9 Installation of OpenStack and creation of Virtual machines
+//Step 1 Update all the file in the ubunttu by sudo apt update
+sudo apt update
+//Step 2 Install the packages to build the openstack
+sudo apt install git
+sudo apt install python3-pip
+sudo apt install python3-venv
+sudo apt install python3-dev
+sudo apt install build-essential
+//Step 3 Create the stack user and grant sudo privileges
+sudo useradd -s /bin/bash -d /opt/stack -m stack
+sudo usermod -aG sudo stack
+//Step 4 Configure passwordless sudo
+echo "stack ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/stack
+sudo chmod 0440 /etc/sudoers.d/stack
+//Step 5 Give permissions to the stack user
+sudo chown -R stack:stack /opt/stack
+//Step 6 Switch to the stack user
+sudo su - stack
+//Step 7 Download DevStack from Git
+git clone https://git.openstack.org/openstack/devstack
+// If the clone URL redirects or fails, use the current repository URL:
+git clone https://opendev.org/openstack/devstack
+//Step 8 Move to the DevStack directory
+cd devstack
+//Step 9 nano local.conf
 
+[[local|localrc]]
+ADMIN_PASSWORD=YourPassword123
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
 
+DEST=/opt/stack
+HOST_IP=192.168.1.10
+
+//Replace YourPassword123 with a password you choose.
+//Replace 192.168.1.10 with your Ubuntu machine's actual IP address. Find it using: ip addr show
+
+//Press ctrl+s and ctrl+x
+//Step 10 Install and run OpenStack
+./stack.sh
+//Step 11 Open the OpenStack dashboard
+//Open Firefox or another browser in Ubuntu and enter: http://192.168.1.10/dashboard (Replace the IP address with the same IP configured in local.conf)
+//Log in using:
+//- Username: admin
+//- Password: The password you configured as ADMIN_PASSWORD
+//Step 12 Create a virtual machine
+//Run the following commands in the terminal.
+//a. Load OpenStack credentials
+source openrc admin admin
+//If you are not in the DevStack directory, use the appropriate path to its openrc file.
+//b. List available images and flavors
+openstack image list
+openstack flavor list
+//c. Create a key pair
+openstack keypair create mykey > mykey.pem
+//Set secure permissions: 
+chmod 600 mykey.pem
+//d. List available networks
+openstack network list
+//e. Launch the virtual machine
+// Replace the three placeholders with the actual image, flavor, and network ID values from your terminal.
+openstack server create --image <image_name_or_id> --flavor <flavor_name_or_id> --nic net-id=<network_id> --key-name mykey my-first-vm
+//f. Check the virtual machine status
+openstack server list
+//g. Connect to the virtual machine
+ssh -i mykey.pem cirros@<vm_public_ip>
+//Replace <vm_public_ip> with the actual reachable IP address. This SSH command assumes the image is CirrOS and SSH access has been configured.
+
+//Exp 10 Creation of VHD on windows and restoring on different host
+//Part A Create a VHD on windows
+//Step 1 Press Win + R, type diskmgmt.msc, and press Enter
+//Step 2 In Disk Management, go to the Action menu -> Create VHD
+//Step 3 Click Browse and choose a location, such as Documents or enter ur name 
+//Step 4 Set the virtual hard disk size to 2 GB
+//Step 5 Choose VHD as the format.
+//Step 6 Choose Dynamically expanding as the type.
+//Step 7 Click OK
+//Step 8 Right-click the new disk's label on the left side
+//Step 9 Select Initialize Disk
+//Step 10 Choose MBR for this small demonstration, then click OK
+//Step 11 Right-click the unallocated space and choose New Simple Volume
+//Step 12 Click Next, use the maximum size, and assign a drive letter such as E:
+//Step 13 You should now see a new drive in File Explorer.
+//Step 14 Open File Explorer using Windows + E and Open the new drive and Create a text file named test.txt and Type something like VHD practical test and save it.
+//Step 15 Restore the VHD on another computer
+//Step 16 On the first computer: safely detach the VHD using Disk Management → right-click the disk → Detach VHD. Do not select the option to delete the virtual hard disk file.
+//Step 17 Copy ur .vhd file to a USB drive or another transfer location. On the second computer, open Disk Management and select Action → Attach VHD.
+//Step 18 Browse to ur .vhd and click OK and Open File Explorer and check the attached drive and Verify that test.txt is still there.
+//Result: The same virtual disk and its saved files are accessible on the second computer.
+
+//Part B Storage Virtualization
+//Step 1 Create a VM and Add Additional Storage
+//Step 2 In VirtualBox: Select the VM Settings Storage.
+//Step 3 Click the Controller: SATA -> Add Hard Disk -> Create New Disk.
+//Step 4 Choose VDI (VirtualBox Disk Image)-> click next, Dynamically allocated-> click next, then size 7 GB -> click Finish 
+//Step 5 Start the VM and install LVM
+sudo apt update
+sudo apt install lvm2 -y
+//Step 6 Login as Root
+sudo -s
+//Step 7 Check Existing Disks and LVM
+fdisk -l
+//Step 8 List physical volumes
+pvdisplay
+//Step 9 List volume groups
+vgdisplay
+//Step 10 List logical volumes
+lvdisplay
+//Step 11 Create Physical Volume
+pvcreate /dev/sdb
+//Step 12 Extend the Volume Group
+vgextend ubuntu-vg /dev/sdb or type exit and enter -> sudo vgcreate ubuntu-vg /dev/sdb
+//Replace ubuntu-vg with your existing Volume Group name.
+//This adds the new PV to your VG.
+//Step 13 Extend the Logical Volume (Root)
+lvresize --size +3G /dev/ubuntu-vg/root or type exit and enter -> sudo lvcreate -L 3G -n data ubuntu-vg
+//Step 14 Check Current Disk Usage
+df -h
+//Step 15 Resize the Filesystem
+resize2fs /dev/mapper/ubuntu--vg-root or type exit and enter -> sudo mkfs.ext4 /dev/ubuntu-vg/data
+//Step 16 Verify Disk Space
+df -h
+//Step 17 Confirm that the root filesystem now has additional 3 GB.
