@@ -1,0 +1,58 @@
+// EXP 2A Create a VM and adding storage, memory network to vm 
+//Open Oracle VM VirtualBox Manager and Click the "New" button
+//Fill the name: (your name) Type: Linux Version: Ubuntu (64-bit) or your chosen OS and Click Next
+//Allocate Memory (RAM) .Set the memory size  4gb has been set below Don’t exceed 50% of your physical system RAM Click Next
+//Click use an existing virtual hard disk. Click Next Dynamically allocated → Click Next Set disk size (e.g., 20 GB)Click Create
+//Configure Network Adapter Go to Settings → Network Ensure Adapter 1 is: Enabled Attached to:Bridged Adapter (for internet + LAN access), or Host-Only Adapter (for communication with host only) Click OK Then new vm has been created 
+//Execution of java program to test the execution time between vm (Ubunttu) and host(Windows)
+//1)To find the sum of digits between 1 to max of long datatype 
+//Steps to Execute in Ubuntu (Virtual Machine)
+//Open the Terminal.
+//Create a Java source file using the command:
+//gedit filename. java
+//Type the Java program in the Gedit editor.
+//Save and close the editor.
+//Compile the program using: javac filename.java
+//Execute the program using:java filename
+
+nano filename.java
+
+//type the following code in the nano editor and save it
+public class filename{
+    public static void main(String args[]){
+        long st=System.nanoTime();
+        long sum=0;
+        for(long i=0;i<1000000000L;i++){
+            sum+=i;
+        }
+        long et=System.nanoTime();
+        double ds=(et-st)/1000000000.0;
+        System.out.println("sum is "+sum);
+        System.out.println("Execution Time "+ds+" seconds");
+    }
+}
+
+javac filename.java
+java filename
+
+//Same above Steps to Execute in Windows (Host Machine)
+
+// EXP 2b VM-VM ping, VM-native ping
+//windows host 
+ipfconfig // to find the IP address of the host machine
+//ubuntu vm
+ifconfig // to find the IP address of the VM machine
+//kali linux vm
+ifconfig // to find the IP address of the Kali Linux VM machine
+
+//windows host to ubuntu vm ping
+ping <ubuntu_vm_ip_address>
+//windows host to kali linux vm ping
+ping <kali_linux_vm_ip_address>
+//ubuntu vm to windows host ping
+ping <windows_host_ip_address>
+//ubuntu vm to kali linux vm ping  
+//kali linux vm to ubuntu vm ping
+ping <ubuntu_vm_ip_address>
+//kali linux vm to windows host ping
+ping <windows_host_ip_address>

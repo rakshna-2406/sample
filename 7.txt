@@ -1,0 +1,40 @@
+// EXP 7a Configuration of HyperV on Windows of VMs
+
+// Step 1 Open the windows server and open the server manager Click add roles and features . Read before you begin and click next.
+// Step 2 Select role based installation type and click next.
+// Step 3 Select the server and click next
+// Step 4 In server roles check on hyper v and click the add features 
+// Step 5 Enable virtual switches both ethernet and virtual box host only adapter
+// Step 6 For migration use credential security support provider
+// Step 7 Click install and hyperv has been installed and enabled on the windows server
+// Step 8 Open hyperv manager in tools
+
+
+// EXP 7b Creation of VM, Powershell commands, Management
+
+// Step 1 open Tools-> hyper v manager-> right click on server and click create new vm
+// Step 2 Specify name and location click next.
+// Step 3 Assign the memory for the vm(for safety give as 2gb )
+// Step 4 Conigure the network click on inter(R) Ethernet connection virtual switch
+// Step 5 Connect virtual harddisk (name,location,maximum gb) click next
+// Step 6 Import the iso file which os need to install on the vm(here ubunttu)
+// Step 7 Click finish
+// Vm installation using Powershell Procedure : 
+// Step 8 Create vm with name and space in gb with virtual hard disk creation
+New-VM -Name "tcevm" -MemoryStartupBytes 2GB -NewVHDPath "D:\tcevm.vhdx" -NewVHDSizeBytes 60GB -Path "D:\"
+
+// Step 9 Asssign virtual switch to the vm
+Connect-VMNetworkAdapter -VMName "tcevm" -SwitchName "Intel(R) Ethernet Connection (2) I219-LM Virtual Switch"
+
+// Step 10 import the iso file which os need to install on vm
+Set-VMDvdDrive -VMName "tcevm" -Path "C:\ubuntu-18.04-desktop-amd64.iso"
+
+// Step 11 Start the vm
+
+//Powershell commands
+// Step 12 Get vm and start vm
+Get-VM
+Start-VM -Name "your_vm_name"
+
+// Step 13 Stop the vm
+Stop-VM -Name "your_vm_name"

@@ -1,0 +1,48 @@
+// EXP 5a Installation of KVM and creation of Virtual instances
+
+// Step 1 Check Hardware Virtualization Support.
+egrep -c 'lm' /proc/cpuinfo or egrep -c '(vmx|svm)' /proc/cpuinfo
+
+// Step 2 Run uname -a , which shows kernel name, hostname, kernel version, build date, architecture, and OS type in one line.
+uname -a
+
+// Step 3 List KVM kernel module files
+ls /lib/modules/5.4.0-84-generic/kernel/arch/x86/kvm/kvm*
+
+// Step 4 Install KVM packages
+sudo apt-get install qemu-kvm libvirt-bin bridge-utils qemu-system virt-manager
+
+// Step 5 Configure libvirt
+sudo nano /etc/libvirt/libvirtd.conf
+grep ^[^#] /etc/libvirt/libvirtd.conf
+
+// Step 6 Restart libvirtd
+sudo systemctl restart libvirtd
+
+// Step 7 List virtual machines
+virsh list
+
+// Step 8 Enter virtualization interactive terminal
+virsh
+
+// Step 9 Get libvirt & QEMU version
+//Now you are inside virsh, so type:
+version
+
+// Step 10 Get node information Still inside virsh, type:
+nodeinfo
+
+// Step 11 Exit virsh
+exit or type: control + d
+
+// Step 12 Then Import Existing VM, Open Virt-Manager
+virt-manager
+
+// Step 13 Select import existing disk image and click forward
+// Step 14 Download cirros disk image from the link: (in firfox browser)
+https://download.cirroscloud.net/0.5.1/
+
+// Step 15 Give the path of downloaded cirros disk image and click forward
+// Step 16 Choose memory and CPU settings and click forward
+// Step 17 Name your VM and click Finish
+// Step 18 The VM is booted successfully and the login was also successful

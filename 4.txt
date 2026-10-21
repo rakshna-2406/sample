@@ -1,0 +1,15 @@
+// EXP 4b Live Migration of Virtual Machines using XenCenter
+
+// Step 1 Add the new server by clicking the server in the xencenter and server->Add
+// Step 2 Add the xenserver 1 by entering the Server , Username and password and click add.
+// Server: 10.10.32.140
+// Username: root
+// Step 3 Next add the vm of yours by clicking the xenserver 1 (right click) and add click new vm
+// Step 4 Click the template example citric or ubunttu os or cent os (os which you have).
+// Step 5 Give the name for your Vm and click next.
+// Step 6 Select the iso file inside and click the next
+// Step 7 Finally click the create now option then your vm has been created successfully.
+// Step 8 Create a xenserver 2 same procedure followed in first xenserver1 and click the xenserver 1.
+// Step 9 Right click the vm and select the move vm option from the following
+// Step 10 Select the xenserver 2 from the following list
+// Step 11 Now see the Vm in the second server tce and the live migration has been executed successfully.

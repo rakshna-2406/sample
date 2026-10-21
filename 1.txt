@@ -1,0 +1,42 @@
+// EXP 1b review of linux commands
+//commands 
+ls // lists files and directories in the current directory
+cd /home // changes the current directory to the specified directory
+
+pwd // prints the current working directory
+
+mkdir file  // creates a new directory with the specified name
+
+rmdir file // removes an empty directory
+
+rm -r one // removes files or directories (use with caution)
+
+cp one.txt two.txt// copies files or directories from one location to another
+
+mv one.txt two.txt// moves or renames files or directories
+
+cat one.txt// displays the contents of a file
+
+touch one.txt // creates a new empty file or updates the timestamp of an existing file
+
+chmod // changes the permissions of a file or directory
+
+chown // changes the owner of a file or directory
+
+grep "hi" two.txt // searches for a specific pattern in files
+
+find // searches for files and directories based on specified criteria
+
+nano one.txt // opens the nano text editor to edit a file
+
+ps // displays information about running processes
+
+ps -aux 
+
+top // displays system tasks and resouces usage in real-time
+
+kill // terminates a process using its PID
+
+df // show disk usage and free space of file system
+
+du //show disk usage of files and directories

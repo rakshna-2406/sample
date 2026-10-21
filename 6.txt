@@ -1,0 +1,249 @@
+// EXP 6 Transfer of files from one Virtual Machine to another
+//Method 1 NFS
+// Step 1 Configure VirtualBox Network: Set both VMs’ network adapter to "Host-only Adapter” in adapter 1 and NAT in adapter 2(for installing packages) so they are on the same subnet.
+// Go to settings -> network -> adapter 1 -> Host only adapter and Adapter2 -> NAT
+// Step 2 Check IP Addresses
+//On both ubuntu as well as kali ip a (check ip) Ensure both are in same subnet (eg 192.168.56.103/24 ubunttu and 192.168.56.104 kali) both in same subnet 192.168.56.0/24
+ip a // check ip address of both vm ubuntu and kali linux
+
+// Step 3 Set up NFS	Server	on	Ubuntu	VM(Here	ubuntu	act	as	server), 
+sudo apt update
+
+// Step 4  Install	NFS	server
+sudo apt install nfs-kernel-server -y
+
+// Step 5 Create a directory to share
+sudo mkdir -p /srv/nfs/rakshna 
+
+// Step 6 Set	permissions
+sudo chown nobody:nogroup /srv/nfs/rakshna
+chmod 777 /srv/nfs/rakshna
+
+// Step 7 Edit	exports	file	to	allow	Kali	IP	access
+sudo nano /etc/exports
+
+// Step 8 Copy-paste exactly this line into the nano file: (in the place of <kali ip> write the kali linux vm ip address)
+/srv/nfs/sharedfolder <kali ip>(rw,sync,no_subtree_check,no_root_squash)
+
+// Step 9 Export and restart NFS server:
+sudo exportfs -a
+sudo systemctl restart nfs-kernel-server
+
+// Step 10 Allow/disable the firewall for the kali linux (in the place of <kali ip> write the kali linux vm ip address)
+sudo ufw allow from <kali ip> to any port nfs
+
+// Step 11 Set up NFS Client on Kali VM (open kali linux terminal) (Here kali act as client)
+sudo apt update
+sudo apt install nfs-common -y
+
+// Step 12 Create mount point:
+sudo mkdir -p /mnt/nfs/rakshna
+
+// Step 13 Mount the NFS share:
+sudo mount <ubuntu ip>:/srv/nfs/rakshna /mnt/nfs/rakshna
+// Step 14 Verify the mount:
+df -h | grep nfs
+ls -l /mnt/nfs/rakshna 
+
+// Step 15 Transfer files from Ubuntu to Kali
+//On Ubuntu VM, create a test file in the shared directory:
+echo "Hello from Ubuntu!" | sudo tee /srv/nfs/rakshna/ubuntu_test.txt
+
+// Step 16 On Kali VM, check if the file is accessible:
+cat /mnt/nfs/rakshna/ubuntu_test.txt
+
+// Step 17 Transfer files from Kali to Ubuntu
+//On Kali VM, create a test file in the shared directory:
+echo "Hello from Kali!" | sudo tee /mnt/nfs/rakshna/kali_test.txt
+
+// Step 18 On Ubuntu VM, check if the file is accessible:
+cat /srv/nfs/rakshna/kali_test.txt
+
+
+// METHOD 2: SHARED FOLDER
+
+// Step 1 Create a Shared Folder on Your Host
+// Create a folder in your host machine, for example C:\VMShared
+// Create a test file named 22IT043.txt inside the folder
+
+// Step 2 Enable Shared Folder in VirtualBox for Both VMs
+// Shut down VM1
+// Open VirtualBox Manager -> Select VM1 -> Settings -> Shared Folders
+// Click + (Add new shared folder)
+// Folder Path: C:\VMShared
+// Folder Name: VMShared
+// Tick Auto-mount
+// Click OK and again click OK to save
+// Repeat the same procedure for VM2
+
+// Step 3 Insert Guest Additions CD Image
+// Start VM1
+// In the VirtualBox VM window, go to Devices -> Insert Guest Additions CD Image
+// Repeat the same procedure for VM2
+
+// Step 4 Check the Shared Folder in Both VMs
+// On VM1, open Terminal and execute:
+ls /media
+
+// On VM2, open Terminal and execute:
+ls /media
+
+// Step 5 Access the Shared Folder
+// On both VMs, execute:
+ls /media/sf_VMShared
+
+// The file 22IT043.txt should be visible in both VMs
+
+// Step 6 Fix Permissions if Permission Denied
+// On both VMs, execute:
+sudo usermod -aG vboxsf $USER
+
+// Reboot both VMs:
+sudo reboot
+
+// Step 7 Transfer Files from VM1 to the Shared Folder
+// On VM1, ensure VM1.txt exists in the current directory
+// Execute:
+cp VM1.txt /media/sf_VMShared/
+
+// Step 8 Verify the File in VM2
+// On VM2, execute:
+ls /media/sf_VMShared
+
+// VM1.txt should appear in the shared folder
+
+
+// METHOD 3: SSH (Secure Shell)
+
+// Step 1 Install SSH on Both VMs
+// On VM1:
+sudo apt update
+sudo apt install openssh-server -y
+
+// On VM2:
+sudo apt update
+sudo apt install openssh-server -y
+
+// Step 2 Check SSH Status
+// On both VMs:
+sudo systemctl status ssh
+
+// Step 3 Get Server IP Address
+// On VM1 (Server, username = tce):
+ip a
+
+// Example VM1 IP address: 192.168.56.103
+
+// Step 4 Allow SSH Through Firewall
+// On VM1:
+sudo ufw allow 22/tcp
+sudo ufw reload
+
+// Step 5 Connect from VM2 to VM1
+// On VM2 (Client, username = ubuntu):
+ssh tce@192.168.56.103
+
+// Enter VM1's tce password when prompted
+
+// Step 6 Transfer File from VM2 to VM1
+// Ensure file.txt exists in VM2's current directory
+// On VM2:
+scp file.txt tce@192.168.56.103:/home/tce/
+
+// Step 7 Transfer File from VM1 to VM2
+// Ensure serverfile.txt exists in /home/tce/ on VM1
+// On VM2:
+scp tce@192.168.56.103:/home/tce/serverfile.txt /home/ubuntu/
+
+// Step 8 Verify File Transfer
+// On VM1, check the file copied from VM2:
+ls /home/tce/
+
+// On VM2, check the file copied from VM1:
+ls /home/ubuntu/
+
+
+// METHOD 4: FTP (File Transfer Protocol)
+
+// Step 1 Install FTP Server on VM1
+// On VM1 (Server):
+sudo apt update
+sudo apt install vsftpd -y
+
+// Step 2 Enable and Start FTP Service
+// On VM1:
+sudo systemctl enable vsftpd
+sudo systemctl start vsftpd
+
+// Step 3 Configure vsftpd
+// On VM1:
+sudo nano /etc/vsftpd.conf
+
+// Ensure these lines are present and uncommented:
+// local_enable=YES
+// write_enable=YES
+// chroot_local_user=YES
+// allow_writeable_chroot=YES
+
+// Save using Ctrl+O, press Enter, and exit using Ctrl+X
+
+// Step 4 Restart FTP Server
+// On VM1:
+sudo systemctl restart vsftpd
+
+// Step 5 Check VM1 IP Address
+// On VM1:
+ip a
+
+// Example VM1 IP address: 192.168.56.103
+
+// Step 6 Allow FTP Through Firewall
+// On VM1:
+sudo ufw allow 21/tcp
+sudo ufw allow 20/tcp
+sudo ufw status
+
+// Step 7 Install FTP Client on VM2
+// On VM2 (Client):
+sudo apt install ftp -y
+
+// Step 8 Connect from VM2 to VM1
+// On VM2:
+ftp 192.168.56.103
+
+// Enter VM1's username (tce) and password when prompted
+
+// Step 9 List Files on VM1
+// At the FTP prompt:
+ls
+
+// Step 10 Change Directory on VM1
+// At the FTP prompt:
+cd folder
+
+// Step 11 Download File from VM1 to VM2
+// Ensure ftp_vm1.txt exists in the server's current directory
+// At the FTP prompt:
+get ftp_vm1.txt
+
+// Step 12 Upload File from VM2 to VM1
+// Ensure ftp_vm2.txt exists in VM2's current local directory
+// At the FTP prompt:
+put ftp_vm2.txt
+
+// Step 13 Exit FTP Session
+// At the FTP prompt:
+bye
+
+// Step 14 Verify Downloaded File on VM2
+// On VM2:
+ls
+
+// ftp_vm1.txt should be present in VM2's current directory
+
+// Step 15 Verify Uploaded File on VM1
+// On VM1:
+ls /home/FTP1/
+
+// ftp_vm2.txt should be present in /home/FTP1/
+// Ensure the FTP server's directory configuration allows this destination

@@ -1,0 +1,69 @@
+//Exp 9 Installation of OpenStack and creation of Virtual machines
+//Step 1 Update all the file in the ubunttu by sudo apt update
+sudo apt update
+//Step 2 Install the packages to build the openstack
+sudo apt install git
+sudo apt install python3-pip
+sudo apt install python3-venv
+sudo apt install python3-dev
+sudo apt install build-essential
+//Step 3 Create the stack user and grant sudo privileges
+sudo useradd -s /bin/bash -d /opt/stack -m stack
+sudo usermod -aG sudo stack
+//Step 4 Configure passwordless sudo
+echo "stack ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/stack
+sudo chmod 0440 /etc/sudoers.d/stack
+//Step 5 Give permissions to the stack user
+sudo chown -R stack:stack /opt/stack
+//Step 6 Switch to the stack user
+sudo su - stack
+//Step 7 Download DevStack from Git
+git clone https://git.openstack.org/openstack/devstack
+// If the clone URL redirects or fails, use the current repository URL:
+git clone https://opendev.org/openstack/devstack
+//Step 8 Move to the DevStack directory
+cd devstack
+//Step 9 nano local.conf
+
+[[local|localrc]]
+ADMIN_PASSWORD=YourPassword123
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+
+DEST=/opt/stack
+HOST_IP=192.168.1.10
+
+//Replace YourPassword123 with a password you choose.
+//Replace 192.168.1.10 with your Ubuntu machine's actual IP address. Find it using: ip addr show
+
+//Press ctrl+s and ctrl+x
+//Step 10 Install and run OpenStack
+./stack.sh
+//Step 11 Open the OpenStack dashboard
+//Open Firefox or another browser in Ubuntu and enter: http://192.168.1.10/dashboard (Replace the IP address with the same IP configured in local.conf)
+//Log in using:
+//- Username: admin
+//- Password: The password you configured as ADMIN_PASSWORD
+//Step 12 Create a virtual machine
+//Run the following commands in the terminal.
+//a. Load OpenStack credentials
+source openrc admin admin
+//If you are not in the DevStack directory, use the appropriate path to its openrc file.
+//b. List available images and flavors
+openstack image list
+openstack flavor list
+//c. Create a key pair
+openstack keypair create mykey > mykey.pem
+//Set secure permissions: 
+chmod 600 mykey.pem
+//d. List available networks
+openstack network list
+//e. Launch the virtual machine
+// Replace the three placeholders with the actual image, flavor, and network ID values from your terminal.
+openstack server create --image <image_name_or_id> --flavor <flavor_name_or_id> --nic net-id=<network_id> --key-name mykey my-first-vm
+//f. Check the virtual machine status
+openstack server list
+//g. Connect to the virtual machine
+ssh -i mykey.pem cirros@<vm_public_ip>
+//Replace <vm_public_ip> with the actual reachable IP address. This SSH command assumes the image is CirrOS and SSH access has been configured.

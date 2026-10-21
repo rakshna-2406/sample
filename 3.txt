@@ -1,0 +1,28 @@
+/ EXP 3 cold migration of vm one host to another
+
+// Step 1 Created a java file to check whether the same file exist in vm after imported(coldmigrated) in another system
+
+gedit one.java
+public class one {
+    public static void main(String args[]) {
+        System.out.println("Migration works.");
+    }
+}
+
+javac one.java
+java one
+
+// Step 2 Shut down the VM completely. Open VirtualBox and select the VM → Click File > Export Appliance (or File > Export OVF).
+// Step 3 Select the vm which you want to export
+// Step 4 Select the format which you want to export ova or ovf file format and select the path where you want to export in the file system
+// Step 5 Click Finish to (export appliance to the file system where you selected the location)
+// Step 6 Check the folder whether the ova image has been present in the folder
+// Step 7  Import the image by import appliance in the file ->import appliance
+// Step 8  Import the ova file from the source
+// Step 9 Now the image has been importing
+// Step 10 Check whether the vm is shown in the oracle virtual box and open it
+// Step 11 Open the java file which you saved first using the linux commands gedit
+gedit one.java
+// Step 12 And its verified that the file are located and cold migration has done
+javac one.java
+java one    

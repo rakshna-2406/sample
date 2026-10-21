@@ -1,0 +1,55 @@
+//Exp 10 Creation of VHD on windows and restoring on different host
+//Part A Create a VHD on windows
+//Step 1 Press Win + R, type diskmgmt.msc, and press Enter
+//Step 2 In Disk Management, go to the Action menu -> Create VHD
+//Step 3 Click Browse and choose a location, such as Documents or enter ur name 
+//Step 4 Set the virtual hard disk size to 2 GB
+//Step 5 Choose VHD as the format.
+//Step 6 Choose Dynamically expanding as the type.
+//Step 7 Click OK
+//Step 8 Right-click the new disk's label on the left side
+//Step 9 Select Initialize Disk
+//Step 10 Choose MBR for this small demonstration, then click OK
+//Step 11 Right-click the unallocated space and choose New Simple Volume
+//Step 12 Click Next, use the maximum size, and assign a drive letter such as E:
+//Step 13 You should now see a new drive in File Explorer.
+//Step 14 Open File Explorer using Windows + E and Open the new drive and Create a text file named test.txt and Type something like VHD practical test and save it.
+//Step 15 Restore the VHD on another computer
+//Step 16 On the first computer: safely detach the VHD using Disk Management → right-click the disk → Detach VHD. Do not select the option to delete the virtual hard disk file.
+//Step 17 Copy ur .vhd file to a USB drive or another transfer location. On the second computer, open Disk Management and select Action → Attach VHD.
+//Step 18 Browse to ur .vhd and click OK and Open File Explorer and check the attached drive and Verify that test.txt is still there.
+//Result: The same virtual disk and its saved files are accessible on the second computer.
+
+//Part B Storage Virtualization
+//Step 1 Create a VM and Add Additional Storage
+//Step 2 In VirtualBox: Select the VM Settings Storage.
+//Step 3 Click the Controller: SATA -> Add Hard Disk -> Create New Disk.
+//Step 4 Choose VDI (VirtualBox Disk Image)-> click next, Dynamically allocated-> click next, then size 7 GB -> click Finish 
+//Step 5 Start the VM and install LVM
+sudo apt update
+sudo apt install lvm2 -y
+//Step 6 Login as Root
+sudo -s
+//Step 7 Check Existing Disks and LVM
+fdisk -l
+//Step 8 List physical volumes
+pvdisplay
+//Step 9 List volume groups
+vgdisplay
+//Step 10 List logical volumes
+lvdisplay
+//Step 11 Create Physical Volume
+pvcreate /dev/sdb
+//Step 12 Extend the Volume Group
+vgextend ubuntu-vg /dev/sdb or type exit and enter -> sudo vgcreate ubuntu-vg /dev/sdb
+//Replace ubuntu-vg with your existing Volume Group name.
+//This adds the new PV to your VG.
+//Step 13 Extend the Logical Volume (Root)
+lvresize --size +3G /dev/ubuntu-vg/root or type exit and enter -> sudo lvcreate -L 3G -n data ubuntu-vg
+//Step 14 Check Current Disk Usage
+df -h
+//Step 15 Resize the Filesystem
+resize2fs /dev/mapper/ubuntu--vg-root or type exit and enter -> sudo mkfs.ext4 /dev/ubuntu-vg/data
+//Step 16 Verify Disk Space
+df -h
+//Step 17 Confirm that the root filesystem now has additional 3 GB.

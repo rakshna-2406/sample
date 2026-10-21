@@ -1,0 +1,157 @@
+// EXP 8 Network Virtualization – OpenVSwitch and Linux bridge
+//Linux Bridge:
+//Step 1 Check the current network configuration.
+ifconfig
+
+//Step 2 Install and configure necessary Bridge Utilities
+sudo apt install bridge-utils
+sudo modprobe bridge
+sudo modprobe br_netfilter
+
+//Step 3 Edit the netplan configuration file and specify the configuration.
+sudo nano /etc/netplan/01-netcfg.yaml
+//Add the following configuration:
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eno2:
+      dhcp4: no
+  bridges:
+    br-cloud:
+      interfaces: [eno2]
+      addresses: [10.0.2.15/24]
+      gateway4: 10.0.2.255
+      nameservers:
+        addresses: [8.8.8.8, 1.1.1.1]
+
+// Step 4 Apply the new netplan configuration and restart the network.
+sudo systemctl restart networking
+
+//Step 5 Verify network interfaces and bridge
+ip a
+
+// Step 6 Verify routing table
+route -n
+brctl show
+
+// Open Virtual Switch:
+// Step 8 Enter root user
+sudo -s
+
+// Step 9 Create two namespaces
+ip netns add VRF1
+ip netns add VRF2
+// Check them:
+ip netns list
+
+// Step 10 Create virtual Ethernet pairs
+ip link add veth1 type veth peer name veth2 // 1st pair
+ip link add veth3 type veth peer name veth4 // 2nd pair
+
+// Step 11 Check the virtual Ethernet links
+ip link
+
+// Step 12 Assign veth ports to namespaces
+ip link set veth1 netns VRF1
+ip link set veth3 netns VRF2
+ip netns exec VRF1 ip link // check veth1 in VRF1
+ip netns exec VRF2 ip link // check veth3 in VRF2 
+
+// Step 13 Assign IP addresses
+ip netns exec VRF1 ifconfig veth1 10.10.10.1/24 up
+ip netns exec VRF2 ifconfig veth3 10.10.10.2/24 up
+ip netns exec VRF2 ifconfig // check the congifuration 
+ip netns exec VRF1 ifconfig // check the congifuration
+
+// Step 14 Check routing tables
+ip netns exec VRF2 route -n
+route -n //Check the host routing table
+ip netns exec VRF1 route -n
+
+// Step 15 Install Open vSwitch
+sudo apt install openvswitch-switch openvswitch-common -y
+ovs-vsctl --version
+sudo systemctl status openvswitch-switch // check the service
+
+// Step 16 Create the OVS bridge
+ovs-vsctl add-br vSwitch1
+ovs-vsctl show // check configuration
+ovs-vsctl add-port vSwitch1 veth2
+ovs-vsctl add-port vSwitch1 veth4
+ovs-vsctl show
+
+// Step 17 Bring virtual Ethernet ports UP
+ifconfig veth2 up
+ifconfig veth4 up
+ifconfig vSwitch1 10.10.10.3/24 up
+
+// Step 18 Test connectivity
+ip netns exec VRF1 ping 10.10.10.2
+
+// Step 19 Enable Spanning Tree Protocol
+ovs-vsctl set bridge vSwitch1 stp_enable=true
+ovsdb-client dump
+
+// Step 20 Check MAC addresses
+ovs-appctl fdb/show vSwitch1
+ip netns exec VRF2 ifconfig
+ip netns exec VRF1 ifconfig
+
+
+
+
+
+
+// completed command for exp 8 open v switch 
+
+sudo -s
+
+ip netns add VRF1
+ip netns add VRF2
+ip netns list
+
+ip link add veth1 type veth peer name veth2
+ip link add veth3 type veth peer name veth4
+
+ip link set veth1 netns VRF1
+ip link set veth3 netns VRF2
+
+ip netns exec VRF1 ip link
+
+ip netns exec VRF1 ifconfig veth1 10.10.10.1/24 up
+ip netns exec VRF2 ifconfig veth3 10.10.10.2/24 up
+
+ip netns exec VRF2 ifconfig
+ip netns exec VRF1 ifconfig
+
+ip netns exec VRF2 route -n
+route -n
+ip netns exec VRF1 route -n
+
+sudo apt install openvswitch-switch openvswitch-common -y
+
+ovs-vsctl --version
+sudo systemctl status openvswitch-switch
+
+ovs-vsctl add-br vSwitch1
+ovs-vsctl show
+
+ovs-vsctl add-port vSwitch1 veth2
+ovs-vsctl add-port vSwitch1 veth4
+
+ovs-vsctl show
+
+ifconfig veth2 up
+ifconfig veth4 up
+ifconfig vSwitch1 10.10.10.3/24 up
+
+ip netns exec VRF1 ping 10.10.10.2
+
+ovs-vsctl set bridge vSwitch1 stp_enable=true
+ovsdb-client dump
+
+ovs-appctl fdb/show vSwitch1
+
+ip netns exec VRF2 ifconfig
+ip netns exec VRF1 ifconfig
