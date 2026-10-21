@@ -16,7 +16,7 @@ sudo chmod 0440 /etc/sudoers.d/stack
 //Step 5 Give permissions to the stack user
 sudo chown -R stack:stack /opt/stack
 //Step 6 Switch to the stack user
-sudo su - stack
+sudo -stack
 //Step 7 Download DevStack from Git
 git clone https://git.openstack.org/openstack/devstack
 // If the clone URL redirects or fails, use the current repository URL:
