@@ -1,0 +1,317 @@
+EXP 1:
+20 commands:
+history
+date
+cal
+cal 2026
+whoami
+pwd
+ls
+ls -l
+mkdir test
+cd test
+touch file.txt
+echo Hello
+cat file.txt
+cp file.txt copy.txt
+mv copy.txt new.txt
+rm new.txt
+cd ..
+rmdir test
+clear
+uname
+EXP 2:
+a)Creating VM and adding storage,memory and network to VM:
+public class anu{
+public static void main(String args[]){
+long st=System.nanoTime();
+long sum=0;
+
+for(long i=0;i<1000000000L; i++){
+sum+=i;
+}
+long et=System.nanoTime();
+double ds=(et-st)/1000000000.0;
+System.out.println("Sum is"+sum);
+System.out.println("Execution Time "+ds+" seconds");
+}}
+b)
+vm-vm:
+# VM 1
+ip a
+ping 192.168.56.102
+# VM 2
+ip a
+ping 192.168.56.101
+
+vm-native:
+ip a
+ipconfig        ← run this in Windows
+ping 192.168.56.1
+
+EXP 3:
+3)Cold Migration of VM from one host to another
+nano divya. java
+ cat divya. java (//display the code)
+public class main{
+public static void main(String args[]){
+long st=System.nanoTime();
+long sum=0;
+for(long i=0;i<1000000000L;i++){
+sum+=1;}
+long et=System.nanoTime();
+double ds=(et-st)/1000000000.0;
+System.out.println("sum is "+sum);
+System.out.println("Execution Time "+ds+" seconds"); }
+
+Shut down the VM completely. Open VirtualBox and select  the VM → Click File > Export Appliance (or File > Export OVF).
+Select vm what you want and check ova image in folder . copy paste in downloads 
+Import the image 
+Open the next VM and cat divya.java
+
+EXP 4:
+a) Installation of Citrix XenServer 1 
+
+ b) Live Migration of Virtual Machines using Xen Center  
+Step 1 — Install/Open XenCenter
+1.	Install XenCenter on a Windows computer. 
+2.	Open XenCenter. 
+Step 2 — Add XenServer 1
+3.	Click Add Server. Server: 192.168.56.101,Username: root,Password: ********
+Step 3 — Add XenServer 2
+Enter the XenServer 2 IP address. 
+Server: 192.168.56.102,Username: root,password: ********
+Step 4 — Create a VM
+9.	Right-click XenServer 1. 
+10.	Select New VM. (Centos 6) 
+14.	Select the required ISO image. 
+15.	Configure CPU and RAM if required. 
+16.	Click Create Now. 
+17.	Start the VM. 
+18.	Make sure the VM is running. 
+Move VM
+21.	Select XenServer 2 as the destination. 
+22.	Click Move. Wait while XenCenter transfers the VM. 
+23.	The VM will continue running during the migration. 
+24.	After migration, check XenServer 2. 
+          RUNNING
+26.	Verify that the VM is accessible after migration
+
+EXP 5:
+5a) Installation of KVM and creation of Virtual instances
+Egrep -c ‘lm’ /proc/cpuinfo
+Uname -a
+Sudo apt-get install qemu-kvm libvirt-bin bridge-utils qemu-sys
+sudo apt-get install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils qemu-system-x86
+
+Nano /etc/libvirt/libvirtd.conf
+Grep ^[^#] /etc/libvirt/libvirtd.conf
+{{{
+unix_sock_group=”libvirt”
+unix_sock_ro_perms=”0777”
+unix_sock_rm_perms=”0770”
+unix_sock_dir=”/var/run/libvirt”
+auth_unix_ro=”none”
+auth_unix_rw=”none” }}}}
+Sudo systemctl restart libvirtd
+Virsh list
+Virsh
+Version
+Nodeinfo
+Vm manager - qemu - new - import - download.cirros.cloud.net/0.5.1
+5b) KVM – Create Images from ISO, Image Resizing, and Image Conversion
+A. Create VM from ISO
+1.	Open Virtual Machine Manager (Virt-Manager). 
+2.	Select QEMU/KVM → New. 
+3.	Select Local install media (ISO). 
+4.	Select the Ubuntu Server ISO. 
+5.	Set RAM and CPU. 
+6.	Give the VM a name and click Finish. 
+7.	Install Ubuntu in the VM. 
+B. Create QCOW2 Image
+Run:
+qemu-img create -f qcow2 ubuntu_vm.qcow2 10G
+Check it:
+qemu-img info ubuntu_vm.qcow2
+C. Resize Image
+1.	Shut down the VM. 
+2.	Run: 
+qemu-img resize ubuntu_vm.qcow2 +5G
+3.	Inside the VM, resize the partition: 
+sudo growpart /dev/sda 1
+4.	Resize the filesystem: 
+sudo resize2fs /dev/sda1
+D. Convert Image
+QCOW2 → VDI:
+qemu-img convert -O vdi ubuntu_vm.qcow2 ubuntu_vm.vdi
+QCOW2 → VHD:
+qemu-img convert -O vpc ubuntu_vm.qcow2 ubuntu_vm.vhd
+QCOW2 → IMG:
+qemu-img convert -O raw ubuntu_vm.qcow2 ubuntu_vm.img
+
+Exp 6 – File Transfer using VirtualBox Shared Folder
+1. Create Shared Folder in Windows
+Go to:
+Windows → Create folder C:\VMShared
+Put a test file inside it, e.g. file.txt.
+2. Add Shared Folder to Ubuntu VM
+Go to:
+VirtualBox → Ubuntu VM → Settings → Shared Folders → +
+Set:
+•	Folder Path: C:\VMShared 
+•	Folder Name: VMShared 
+•	✅ Auto-mount 
+•	Click OK 
+Do the same for Kali VM.
+3. Start Ubuntu and check
+Open Ubuntu Terminal:
+ls /media
+Then:
+ls /media/sf_VMShared
+You should see file.txt.
+4. If Permission Denied
+sudo usermod -aG vboxsf $USER
+sudo reboot
+After reboot:
+ls /media/sf_VMShared
+5. Ubuntu → Kali
+Ubuntu:
+cp ~/my_code.java /media/sf_VMShared/
+Kali:
+ls /media/sf_VMShared
+cp /media/sf_VMShared/my_code.java ~/
+6. Kali → Ubuntu
+Kali:
+cp ~/notes.txt /media/sf_VMShared/
+Ubuntu:
+ls /media/sf_VMShared
+cp /media/sf_VMShared/notes.txt ~/
+Exp 7 – Hyper-V
+7(a) Configuration of Hyper-V on Windows
+Steps
+1. Enable Hyper-V
+Go to:
+Control Panel → Programs → Turn Windows features on or off
+Tick:
+•	☑ Hyper-V 
+•	☑ Hyper-V Management Tools 
+•	☑ Hyper-V Platform 
+Click OK → Restart Windows.
+2. Open PowerShell as Administrator
+Run:
+Get-VMSwitch
+3. Create Hyper-V folder
+New-Item -ItemType Directory -Path "C:\Hyper-V" -Force
+7(b) Create and Manage VM using PowerShell
+(Without powershell)
+teps
+1.	Open Hyper-V Manager from the Start Menu. 
+2.	In the right side, click New → Virtual Machine. 
+3.	Click Next and enter VM name: 
+o	Name: Nan 
+4.	Select Generation 2 → Next. 
+5.	Set memory: 
+o	2048 MB (2 GB) 
+o	Click Next. 
+6.	Select Default Switch for network connection. 
+7.	Create a virtual hard disk: 
+o	Name: Nan.vhdx 
+o	Size: 30 GB 
+o	Click Next. 
+8.	Select Install an operating system from a bootable CD/DVD-ROM. 
+9.	Select Image file (.iso) and choose your Ubuntu ISO. 
+10.	Click Finish. 
+11.	In Hyper-V Manager, select Nan. 
+12.	Click Connect → Start. 
+13.	Install Ubuntu inside the VM. (interactive install,erase disk and install ubuntu)
+14.	To stop the VM: 
+•	Right-click Nan → Shut Down.
+
+(with powershell)
+1. Create VM
+New-VM -Name "Nan" -MemoryStartupBytes 2GB -Generation 2 -NewVHDPath "C:\Hyper-V\Nan.vhdx" -NewVHDSizeBytes 30GB
+2. Connect VM to network
+Connect-VMNetworkAdapter -VMName "Nan" -SwitchName "Default Switch"
+3. Add Ubuntu ISO
+Replace the path with your actual Ubuntu ISO path:
+Add-VMDvdDrive -VMName "Nan" -Path "C:\Users\YourName\Downloads\ubuntu.iso"
+4. Set ISO as first boot device
+Set-VMFirmware -VMName "Nan" -FirstBootDevice (Get-VMDvdDrive -VMName "Nan")
+5. Check VM
+Get-VM -Name "Nan"
+6. Start VM
+Start-VM -Name "Nan"
+Then open:
+Hyper-V Manager → Nan → Connect
+Install Ubuntu.
+7. Stop VM
+Stop-VM -Name "Nan"
+8. Check status again      Get-VM -Name "Nan"
+Exp 8 – Network Virtualization using OpenVSwitch and Linux Bridge
+Aim
+To perform network virtualization in Linux using Linux Bridge and OpenVSwitch (OVS).
+A. Linux Bridge
+1. Check network configuration
+ifconfig
+ip a
+2. Install bridge utilities
+sudo apt-get install bridge-utils
+sudo modprobe bridge
+sudo modprobe br_netfilter
+3. Create a Linux bridge
+sudo brctl addbr br-cloud
+4. Add network interface to bridge
+Replace enp0s3 with your actual interface name.
+sudo brctl addif br-cloud enp0s3
+Check:
+brctl show
+5. Check network and routing
+ifconfig
+route -n
+ip a
+________________________________________
+B. OpenVSwitch (OVS)
+1. Become root
+sudo -s
+2. Create two network namespaces
+ip netns add VRF1
+ip netns add VRF2
+Check:
+ip netns list
+3. Create virtual Ethernet pairs
+Create first pair:
+ip link add veth1 type veth peer name veth2
+Create second pair:
+ip link add veth3 type veth peer name veth4
+4. Attach interfaces to namespaces
+ip link set veth1 netns VRF1
+ip link set veth3 netns VRF2
+5. Assign IP addresses
+VRF1:
+ip netns exec VRF1 ifconfig veth1 10.10.10.1/24 up
+VRF2:
+ip netns exec VRF2 ifconfig veth3 10.10.10.2/24 up
+Check:
+ip netns exec VRF1 ifconfig
+ip netns exec VRF2 ifconfig
+6. Install OpenVSwitch
+apt install openvswitch-switch -y
+Start and enable:
+systemctl start openvswitch-switch
+systemctl enable openvswitch-switch
+Check:
+systemctl status openvswitch-switch
+7. Create OVS switch
+ovs-vsctl add-br vSwitch1
+Check:
+ovs-vsctl show
+8. Add virtual Ethernet ports
+ovs-vsctl add-port vSwitch1 veth2
+ovs-vsctl add-port vSwitch1 veth4
+9. Test connectivity
+From VRF1:
+ip netns exec VRF1 ping 10.10.10.2
+If packets are received, the OVS network virtualization is working.
+
+
+
